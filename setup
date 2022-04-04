@@ -80,6 +80,7 @@ upgrade_ansible=0     # Upgrade Ansible to the latest version
 
 # System properties
 is_macos=""        # macOS
+is_arch=""         # Arch Linux
 is_linux=""        # Linux
 is_ubuntu=""       # Ubuntu
 is_debian=""       # Debian
@@ -939,6 +940,7 @@ detect_os() {
         debug "Linux found"
         is_linux=1
         is_macos=0
+        detect_arch
         detect_ubuntu
         detect_debian
         detect_pengwin
@@ -1020,6 +1022,23 @@ detect_pengwin() {
     fi
     echo "*** Pengwin detected"
     is_pengwin=1
+}
+
+# Detect Arch
+detect_arch() {
+    if ! test -f /etc/arch-release; then
+        is_arch=0
+        return
+    fi
+    echo "*** Archlinux detected"
+    is_arch=1
+    local codename
+    codename=$(grep "VERSION_CODENAME=" /etc/os-release | cut -d= -f2)
+    if [ -n "${codename}" ]; then
+        debug "release: ${codename}"
+        # shellcheck disable=SC2034
+        distrib_release="${codename}"
+    fi
 }
 
 # Execute command with pyenv version
